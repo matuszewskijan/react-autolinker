@@ -22,6 +22,7 @@ export default class ReactAutolinker extends React.Component {
       ...options,
       replaceFn: (autolinker, match) => {
         const tag = autolinker.getTagBuilder().build(match);
+        tag.matchedText = match.matchedText;
         tags.push(tag);
         return tag;
       }
@@ -30,9 +31,8 @@ export default class ReactAutolinker extends React.Component {
     let _text = text;
     const children = [];
     for (let tag of tags) {
-      const splitText = _text.includes(tag.attrs.href)
-        ? tag.attrs.href
-        : tag.innerHtml;
+      const splitText = tag.matchedText;
+
       const parts = _text.split(splitText);
       if (tag.attrs && tag.attrs.class) {
         tag.attrs.className = tag.attrs.class;
@@ -41,7 +41,7 @@ export default class ReactAutolinker extends React.Component {
       tag.attrs.key = `${tag.attrs.href}-${tags.indexOf(tag)}`;
       children.push(parts.shift());
       children.push(renderLink(tag));
-      _text = parts.join(tag.attrs.href);
+      _text = parts.join(tag.matchedText);
     }
     children.push(_text);
 
